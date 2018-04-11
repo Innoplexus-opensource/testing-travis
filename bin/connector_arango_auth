@@ -1,0 +1,71 @@
+#!/bin/bash
+
+#This is addon plugin script to manage arango auth for mongo to arango connector
+
+#Author: Suyash Masugade
+
+#Email: suyash.masugade@innoplexus.com
+
+#Date: 17/03/2018
+
+#Company: Innoplexus
+
+validiate(){
+	if [ -z $USER_ARANGO -a -z $PASSWD_ARANGO ]
+	then
+		echo $USER_ARANGO
+	else
+		echo -e "Already authorized!! \n please use reset option to change access details "
+	        exit 1
+	fi
+}
+
+setup() {
+	validiate
+	read -p "Please enter arango Username:" ara_uname
+	read -s -p "Please enter arango Password:" ara_passwd
+	echo "export USER_ARANGO=$ara_uname" >> ~/.bashrc
+	echo "export PASSWD_ARANGO=$ara_passwd" >> ~/.bashrc
+	echo -e "\nThank you your authentication has been setup"
+	}
+
+resetup() {
+
+	sed -i '/USER_ARANGO/d' ~/.bashrc
+	sed -i '/PASSWD_ARANGO/d' ~/.bashrc
+	read -p "Please enter arango new Username:" ara_uname
+	read -s -p "Please enter arango new Password:" ara_passwd
+	echo "export USER_ARANGO=$ara_uname" >> ~/.bashrc
+	echo "export PASSWD_ARANGO=$ara_passwd" >> ~/.bashrc
+	echo -e "\nThank you! your authentication has been updated successfully"
+
+
+}
+
+defaults() {
+	sed -i '/USER_ARANGO/d' ~/.bashrc
+	sed -i '/PASSWD_ARANGO/d' ~/.bashrc
+	echo "unset USER_ARANGO" >> ~/.bashrc
+	echo "unset PASSWD_ARANGO" >> ~/.bashrc
+	echo "Username and Password have been removed"
+}
+
+if [ "$#" -eq 0 ]
+    then
+        echo "illegal number of parameters"
+  else
+          case $1 in
+                set)
+                setup $(whoami)
+                ;;
+                reset)
+		resetup
+                ;;
+                flush)
+		defaults
+                ;;
+                *)
+                echo "Sorry,Please use valid arguments"
+                ;;
+         esac
+fi
